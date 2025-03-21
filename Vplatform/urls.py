@@ -21,7 +21,9 @@ from User import views as u_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('sign_in',u_views.sign_in),
-    path('register',u_views.register),
-    path('',vd_views.homepage)
+    path('sign_in/',u_views.sign_in_page,name='sign_in'),
+    path('register/',u_views.register_page,name='register'),
+    path('logout/',u_views.logout_user,name='logout'),
+    path('your_videos/',vd_views.your_videos,name='your_videos'),
+    path('',vd_views.homepage,name='home')
     ]
