@@ -18,12 +18,15 @@ from django.contrib import admin
 from django.urls import path , include
 from videos_display import views as vd_views
 from User import views as u_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('sign_in/',u_views.sign_in_page,name='sign_in'),
-    path('register/',u_views.register_page,name='register'),
-    path('logout/',u_views.logout_user,name='logout'),
-    path('your_videos/',vd_views.your_videos,name='your_videos'),
+    path('sign_in',u_views.sign_in_page,name='sign_in'),
+    path('register',u_views.register_page,name='register'),
+    path('logout',u_views.logout_user,name='logout'),
+    path('your_videos',vd_views.your_videos,name='your_videos'),
+    path('upload_new',vd_views.upload,name='upload'),
     path('',vd_views.homepage,name='home')
-    ]
+    ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 

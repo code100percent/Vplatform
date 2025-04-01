@@ -4,16 +4,28 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/your_videos.css' %}">
 {% endblock %}
-
+{% block extra_js %}
+    <script src="{% static 'js/your_videos.js' %}"></script>
+{% endblock %}
 {% block content %}
-        <div class="video-container">
-            <div class="video_single">
-                <div class="title">tension song by dilgit dosanj</div>
-                <div class="video">
-                    <video width="320" height="240" controls>
-                        <source src="{% static 'videos/tension.mp4' %}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-            </div>
+<div class="add_video_block">
+    <a href="/upload_new">upload new</a>
+</div>
+<div class="carousel">
+    <div class="carousel-container">
+        {% for video in videos %}
+        <div class="carousel-item">
+            <div class="video-title">{{video.title}}</div>           
+            <video src="{{video.video}}" controls></video>
         </div>
+        {% endfor %}
+      
+    </div>
+    <div class="buttons">
+        <button onclick="prevSlide()">&#10094;</button>
+        <button onclick="nextSlide()">&#10095;</button>
+    </div>
+</div>
+
+
 {% endblock %}

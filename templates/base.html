@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% block extra_css%}
     {% endblock %}    
+    
 
 </head>
 
@@ -35,7 +36,7 @@
             {% if user.is_authenticated %}
             <div>username: {{user.username}}</div>
             {% else %}
-            <a href="sign_in" class="sign-in">Sign In</a>
+            <a href="/sign_in" class="sign-in">Sign In</a>
             {% endif%}
 
         </div>
@@ -67,8 +68,9 @@
         document.getElementById('sidebarCollapse').addEventListener('click', function () {
             document.getElementById('sidebar').classList.toggle('active');
         });
-        // alert();
     </script>
+    {% block extra_js%}
+    {% endblock %}
 </body>
 
 </html>
