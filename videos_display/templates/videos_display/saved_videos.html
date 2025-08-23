@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/liked_video_page.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Video List -->
+<div class="video-list" id="liked-videos-list">
+    {% for video in watch_later_videos %}
+    <div class="video-item" id="{{ video.video.id }}">
+            <a href="{% url 'full_video' video.video.id %}" class="video-item">
+        <div class="video-thumbnail">
+            <img src="{{ video.video.thumbnail.url }}" alt="" srcset="">
+        </div>
+
+        <div class="video-details">
+            <div class="video-title">{{ video.title }}</div>
+            <div class="video-meta">
+                <span>{{ video.video.views }} views</span> •
+                <span>{{ video.video.likes }} likes</span> •
+                <span>{{ video.video.dislikes }} dislikes</span> •
+                <span>{{ video.video.published_date|date:"M d, Y" }}</span>
+            </div>
+        </div>
+
+    </a>
+        <div class="video-actions">
+            <button onclick="removeSaved('{{ video.video.id }}')" class="action-btn delete-btn">remove</button>
+        </div>
+    </div>
+    {% empty %}
+    <p>No saved videos found.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+ <script>
+        function removeSaved(videoId) {
+            fetch(`/video_api/save_video/${videoId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Video removed from saved videos');
+                    return response.json();
+                }
+                 else {
+                    console.error('Error removing like:', response.statusText);
+                }
+            })
+            .then(data => {
+                
+                if(data.message === 'Video removed from saved videos') {
+                    const like_list  = document.getElementById("liked-videos-list");
+                    const like_item = document.getElementById(videoId);
+                    like_list.removeChild(like_item);
+                }
+            });
+        }
+    </script>
+{% endblock %}

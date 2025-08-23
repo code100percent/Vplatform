@@ -1,0 +1,385 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/TheVideoPage.css'%}">
+{% endblock %}
+{% block content %}
+        <div id="content">
+            <div class="video-container">
+                <!-- Main Video Section -->
+                <div class="main-video-section">
+                    <!-- Video Player -->
+                    <video class="video-player" controls>
+                        <source src="{{ video.video.url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+                    <!-- Video Info -->
+                    <div class="video-info">
+                        <h1 class="video-title">{{ video.title }}</h1>
+
+                        <div class="video-meta">
+                            <div class="video-stats">
+                                <span id="view-count">{{ video.views }} views</span> • 
+                                <span>{{ video.published_date|date:"M d, Y" }}</span>
+                            </div>
+                            
+                            <div class="video-actions">
+                                <button class="action-btn" id="like-btn">
+                                    <i class="fas fa-thumbs-up"></i>
+                                    <span id="like-count">{{ video.likes }}</span>
+                                </button>
+                                <button class="action-btn" id="dislike-btn">
+                                    <i class="fas fa-thumbs-down"></i>
+                                    <span id="dislike-count">{{ video.dislikes }}</span>
+                                </button>
+                                <button class="action-btn">
+                                    <i class="fas fa-share"></i>
+                                    Share
+                                </button>
+                                <button class="action-btn">
+                                    <i class="fas fa-download"></i>
+                                    Download
+                                </button>
+                                <button class="action-btn" id="save-btn">
+                                    <i class="fas fa-plus"></i>
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Channel Info -->
+                        <div class="channel-info">
+                            <div class="channel-avatar">{{ video.username|slice:":1" }}</div>
+                            <div class="channel-details">
+                                <h3>{{ video.username }}</h3>
+                                <p>{{ video.subscriber_count }} subscribers</p>
+                            </div>
+                            <button class="subscribe-btn" id="subscribe-btn">Subscribe</button>
+                        </div>
+
+                        <!-- Video Description -->
+                        <div class="video-description">
+                            <div class="description-text">
+                                <strong>Description:</strong>
+                                <br>
+                                {{ video.description|default:"No description available." }}
+                            </div>
+                        </div>
+
+                        <!-- Comments Section -->
+                        <div class="comments-section">
+                            <div class="comments-header">
+                                <span class="comments-count" id="comments-count">{{ comments_no }} Comments</span>
+                                <button class="sort-comments" id="sort-comments-btn">
+                                    <i class="fas fa-sort"></i>
+                                    Sort by
+                                </button>
+                            </div>
+
+                            <!-- Add Comment -->
+                            <div class="comment-input-section">
+                                <div class="comment-avatar">{{ user.username|slice:":1"}}</div>
+                                <div class="comment-input">
+                                    <input type="text" placeholder="Add a public comment..." id="comment-text">
+                                    <div class="comment-actions" id="comment-actions" style="display: none;">
+                                        <button class="comment-btn cancel" id="cancel-comment">Cancel</button>
+                                        <button class="comment-btn post" id="post-comment">Comment</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Comments List -->
+                            <div class="comments-list" id="comments-list">
+                                {% for comment in comments %}
+                                <div class="comment">
+                                    <div class="comment-avatar">{{ comment.user.username|slice:":2"}}</div>
+                                    <div class="comment-content">
+                                        <div class="comment-author">
+                                            {{ comment.user.username }}
+                                            <span class="comment-time">{{ comment.created_at }}</span>
+                                        </div>
+                                        <div class="comment-text">
+                                            {{ comment.content }}
+                                        </div>
+                                        <div class="comment-actions-bar">
+                                            <button class="comment-action">
+                                                <i class="fas fa-thumbs-up"></i>
+                                                <span>7</span>
+                                            </button>
+                                            <button class="comment-action">
+                                                <i class="fas fa-thumbs-down"></i>
+                                            </button>
+                                            <button class="comment-action">Reply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                  
+                 
+                    </div>
+                <!-- Related Videos Section -->
+                <div class="related-videos">
+                    <h3>Other Videos by {{ video.username }}</h3>
+
+                    {% for video in other_videos %}
+                    <a href="{% url 'full_video' video.id %}">
+                        <div class="related-video">
+                            <div class="related-thumbnail">
+                                <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}">
+                            </div>
+                            <div class="related-info">
+                                <div class="related-title">{{ video.title }}</div>
+                                <div class="related-channel">{{ video.username }}</div>
+                                <div class="related-stats">{{ video.views }} views • {{ video.created_at }}</div>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+   {% endblock %}
+
+   {% block extra_js%}
+   <script src="{% static 'js/TheVideoPage.js'%}"></script>
+
+   <script>
+
+        const videoId = "{{ video.id }}";
+        const videoSocket = new WebSocket('ws://'+window.location.host+'/ws/video/'+videoId+'/');
+        
+        videoSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(data);
+            const message = data.message;
+
+            if (message === 'like_update') {
+                const likeCount = document.getElementById('like-count');
+                likeCount.innerText = data.likes;
+                if(data.same_user === 'True'){
+                    const likeBtn = document.getElementById('like-btn');
+                    if(data.action == 'added'){
+                        likeBtn.classList.add('liked');
+                    }
+                    if(data.action == 'removed'){
+                        likeBtn.classList.remove('liked');
+                    }
+                }
+            }
+
+            if(message === 'dislike_update') {
+                const dislikeCount = document.getElementById('dislike-count');
+                dislikeCount.innerText = data.dislikes;
+                if(data.same_user === 'True'){
+                    const dislikeBtn = document.getElementById('dislike-btn');
+                    if(data.action == 'added'){
+                        dislikeBtn.classList.add('liked');
+                    }
+                    if(data.action == 'removed'){
+                        dislikeBtn.classList.remove('liked');
+                    }
+                }
+            }
+            if (message === 'not_logged_in') {
+                alert('You need to be logged in.');
+            }
+
+        };
+
+        const like_btn = document.getElementById('like-btn');
+        like_btn.addEventListener('click', () => {
+            videoSocket.send(JSON.stringify({
+                'action': 'like'
+            }));
+        });
+        const dislike_btn = document.getElementById('dislike-btn');
+        dislike_btn.addEventListener('click', () => {
+            videoSocket.send(JSON.stringify({
+                'action': 'dislike'
+            }));
+        });
+        // coloring the like btn if user has already liked video
+       if ("{{ video_liked }}" === 'True')  {
+           like_btn.classList.add('liked');
+       }
+       if ("{{ video_disliked }}" === 'True')  {
+           dislike_btn.classList.add('liked');
+       }
+
+        
+        // Comment input functionality
+        const commentText = document.getElementById('comment-text');
+        const commentActions = document.getElementById('comment-actions');
+        commentText.addEventListener('focus', () => {
+            commentActions.style.display = 'block';
+        });
+        document.getElementById('cancel-comment').addEventListener('click', () => {
+            commentText.value = '';
+            commentActions.style.display = 'none';
+        });
+        document.getElementById('post-comment').addEventListener('click', () => {
+            const comment = commentText.value.trim();
+            if (comment) {
+                fetch("{% url 'comment' video.id %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                    body: JSON.stringify({ content: comment }),
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error("Network response was not ok.");
+                })
+                .then(data => {
+                    console.log(data);
+                    if (data.message === 'Comment added successfully') {
+                        const commentList = document.getElementById('comments-list');
+                        const newComment = document.createElement('div');
+                        newComment.classList.add('comment');
+                        newComment.innerHTML = `
+                                    <div class="comment-avatar">{{ user.username|slice:":2" }}</div>
+                                    <div class="comment-content">
+                                        <div class="comment-author">
+                                            {{ user.username }}
+                                            <span class="comment-time">just now</span>
+                                        </div>
+                                        <div class="comment-text">
+                                            ${comment}
+                                        </div>
+                                        <div class="comment-actions-bar">
+                                            <button class="comment-action">
+                                                <i class="fas fa-thumbs-up"></i>
+                                                <span>24</span>
+                                            </button>
+                                            <button class="comment-action">
+                                                <i class="fas fa-thumbs-down"></i>
+                                            </button>
+                                            <button class="comment-action">Reply</button>
+                                        </div>
+                                    </div>
+                        `;
+                        //appending the new comment and increasing the comment count
+                        commentList.insertBefore(newComment, commentList.firstChild);
+                        const commentCount = document.getElementById('comments-count');
+                        commentCount.textContent = `${parseInt(commentCount.textContent) + 1} Comments`;
+                    }
+                    if (data.error === 'not_logged_in') {
+                        alert('You need to be logged in.');
+                    }
+                    commentText.value = '';
+                    commentActions.style.display = 'none';
+                })
+                .catch(error => {
+                    console.error("There was a problem with the fetch operation:", error);
+                });
+
+            }
+        });
+
+
+        document.getElementById('sort-comments-btn').addEventListener('click', function() {
+            let parent = document.getElementById('comments-list');
+            let children = Array.from(parent.children);
+            children.reverse().forEach(child => parent.appendChild(child));
+        });
+
+        // save video btn functionality 
+        const is_video_saved = "{{ video_saved }}" === 'True';
+        const save_btn = document.getElementById('save-btn')
+        if (is_video_saved)  {
+            save_btn.classList.add('liked');
+        }
+        save_btn.addEventListener('click', function() {
+            fetch("{% url 'save_video' video.id %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error("Network response was not ok.");
+            })
+            .then(data => {
+                if (data.message === 'Video saved successfully') {
+                    console.log('Video saved successfully!');
+                    save_btn.classList.add('liked');
+                    
+                }
+                else if(data.message === 'Video removed from saved videos') {
+                    console.log('Video removed from saved videos!');
+                    save_btn.classList.remove('liked');
+                }
+                if (data.error === 'not_logged_in') {
+                    alert('You need to be logged in.');
+                }
+            })
+            .catch(error => {
+                console.error("There was a problem with the fetch operation:", error);
+            });
+        });
+
+
+        // subscribing logic 
+        const subscribe_btn = document.getElementById('subscribe-btn');
+        const is_subscribed = "{{ is_subscribed }}" === 'True';
+        if (is_subscribed) {
+            subscribe_btn.classList.add('subscribed');
+        }
+        subscribe_btn.addEventListener('click', function() {
+            if (is_subscribed) {
+                unsubscribe("{{ video.id }}");
+                // subscribe_btn.classList.remove('subscribed');
+            } else {
+                subscribe("{{ video.id }}");
+                // subscribe_btn.classList.add('subscribed');
+            }
+        });
+        // Subscribe button
+        function subscribe(channelId) {
+            fetch(`/video_api/subscribe/${channelId}/`, { method: "POST" ,
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+
+            })
+                .then(res => res.json())
+                .then(data => alert(data.message))
+                .catch(err => console.error(err));
+            }
+
+        // Unsubscribe button
+        function unsubscribe(channelId) {
+        fetch(`/video_api/unsubscribe/${channelId}/`, { method: "DELETE",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+         })
+            .then(res => {
+            if (res.status === 204) {
+                alert("Unsubscribed successfully");
+            } else {
+                return res.json();
+            }
+            })
+            .then(data => {
+            if (data) alert(data.error || data.message);
+            })
+            .catch(err => console.error(err));
+        }
+
+   </script>
+    {% endblock %}

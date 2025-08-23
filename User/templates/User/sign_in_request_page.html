@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css%}
+<link rel="stylesheet" href="{% static 'css/sign_in_request_page.css' %}"> 
+{% endblock %}  
+
+{% block content%}
+<h1 >user not signed in!</h1>
+<a href="/sign_in" class="site-default-but">Sign In</a>
+{% endblock %}
+

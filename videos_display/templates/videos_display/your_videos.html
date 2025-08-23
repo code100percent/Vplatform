@@ -2,30 +2,141 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/your_videos.css' %}">
+<link rel="stylesheet" href="{% static 'css/your_videos.css' %}">
 {% endblock %}
-{% block extra_js %}
-    <script src="{% static 'js/your_videos.js' %}"></script>
-{% endblock %}
+
 {% block content %}
-<div class="add_video_block">
-    <a href="/upload_new">upload new</a>
+
+<!-- Upload Button -->
+<div class="upload-container">
+    <button class="upload-btn" id="openUploadModal">+ Upload Video</button>
 </div>
-<div class="carousel">
-    <div class="carousel-container">
-        {% for video in videos %}
-        <div class="carousel-item">
-            <div class="video-title">{{video.title}}</div>           
-            <video src="{{video.video}}" controls></video>
+
+<!-- Video List -->
+<div class="video-list" id="your-videos-list">
+    {% for video in videos %}
+    <div class="video-item" id="{{ video.id }}">
+            <a href="{% url 'full_video' video.id %}" class="video-item">
+        <div class="video-thumbnail">
+            <img src="{{ video.thumbnail.url }}" alt="" srcset="">
         </div>
-        {% endfor %}
-      
+
+        <div class="video-details">
+            <div class="video-title">{{ video.title }}</div>
+            <div class="video-meta">
+                <span>{{ video.views }} views</span> •
+                <span>{{ video.likes }} likes</span> •
+                <span>{{ video.dislikes }} dislikes</span> •
+                <span>{{ video.published_date|date:"M d, Y" }}</span>
+            </div>
+        </div>
+
+    </a>
+        <div class="video-actions">
+            <button onclick="deleteVideo('{{ video.id }}')" class="action-btn delete-btn">Delete</button>
+        </div>
     </div>
-    <div class="buttons">
-        <button onclick="prevSlide()">&#10094;</button>
-        <button onclick="nextSlide()">&#10095;</button>
+    {% empty %}
+    <p>No videos uploaded by you found.</p>
+    {% endfor %}
+</div>
+<!-- Upload Modal -->
+<div class="modal" id="uploadModal">
+    <div class="modal-content">
+        <span class="modal-close" id="closeUploadModal">&times;</span>
+        <div class="modal-header">Upload New Video</div>
+
+        <form id="uploadForm">
+            <label>Title</label>
+            <input type="text" name="title" required>
+
+            <label>Description</label>
+            <textarea name="description" required></textarea>
+
+            <label>Video File</label>
+            <input type="file" name="video" accept="video/*" required>
+
+            <label>Thumbnail</label>
+            <input type="file" name="thumbnail" accept="image/*" >
+
+            <label>Category</label>
+            <select name="category" required>
+                <option value="kids">Kids</option>
+                <option value="adults">Adults</option>
+                <option value="comedy">Comedy</option>
+                <option value="documentary">Documentary</option>
+                <option value="news">News</option>
+                <option value="science">Science</option>
+            </select>
+
+            <button type="submit">Upload</button>
+        </form>
     </div>
 </div>
 
+{% endblock %}
 
+{% block extra_js %}
+<script>
+// Modal toggle
+const uploadModal = document.getElementById("uploadModal");
+document.getElementById("openUploadModal").onclick = () => uploadModal.style.display = "flex";
+document.getElementById("closeUploadModal").onclick = () => uploadModal.style.display = "none";
+window.onclick = e => { if (e.target === uploadModal) uploadModal.style.display = "none"; };
+
+// Upload Form Submit
+document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    let formData = new FormData(this);
+
+    let response = await fetch("{% url 'upload_video' %}", {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+        }
+    });
+
+    if (response.ok) {
+        alert("Video uploaded successfully!");
+        location.reload(); // refresh to show new video
+    } else {
+        alert("Error uploading video.");
+    }
+});
+
+
+ function deleteVideo(video_id){
+    fetch(`/video_api/delete_video/${video_id}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            // Remove the video item from the DOM
+            return response.json();
+        } 
+        else {
+            console.error('Error deleting video:', response.statusText);
+        }
+    })
+    .then(data => {
+        if(data.message === 'Video deleted successfully') {
+            
+            // Remove the video item from the DOM
+            
+            const video_item = document.getElementById(video_id);
+            video_item.remove();
+            console.log('Video deleted successfully');
+        }
+        if (data.error) {
+            console.error('Error deleting video:', data.error);
+        }
+    });
+}  
+</script>
 {% endblock %}

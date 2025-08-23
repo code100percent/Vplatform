@@ -32,6 +32,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -74,6 +76,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Vplatform.wsgi.application'
+ASGI_APPLICATION = 'Vplatform.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
 
 
 # Database
@@ -132,3 +142,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Media files
 MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'

@@ -23,7 +23,7 @@
                 <button type="button" id="sidebarCollapse" class="btn">
                     <i class="fas fa-bars"></i>
                 </button>
-                <a class="site-title" href="">VPlatform</a>
+                <a class="site-title" href="/">VPlatform</a>
             </div>
 
             <!-- Search Bar -->
@@ -33,27 +33,35 @@
                     <button type="submit"><i class="fas fa-search"></i></button>
                 </div>
             </div>
-            {% if user.is_authenticated %}
-            <div>username: {{user.username}}</div>
-            {% else %}
-            <a href="/sign_in" class="sign-in">Sign In</a>
-            {% endif%}
+
+
+                {% if user.is_authenticated %}
+                <div class="user-profile-container">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="username-text">{{ user.username }}</span>
+                </div>
+                {% else %}
+                <a href="/sign_in" class="sign-in">Sign In</a>
+                {% endif %}
+
 
         </div>
 
         <!-- Sidebar -->
         <nav id="sidebar">
             <ul class="list-unstyled components">
-                <li class="active"><a href=""><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="#"><i class="fas fa-fire"></i> Trending</a></li>
-                <li><a href="#"><i class="fas fa-subscript"></i> Subscriptions</a></li>
-                <li><a href="/your_videos"><i class="fas fa-folder"></i> Your Videos</a></li>
-                <li><a href="#"><i class="fas fa-history"></i> History</a></li>
-                <li><a href="#"><i class="fas fa-clock"></i> Watch Later</a></li>
-                <li><a href="#"><i class="fas fa-thumbs-up"></i> Liked Videos</a></li>
+                <li class="active"><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="/trendings/"><i class="fas fa-fire"></i> Trending</a></li>
+                <li><a href="/subscription/"><i class="fas fa-subscript"></i> Subscriptions</a></li>
+                <li><a href="/your_videos/"><i class="fas fa-folder"></i> Your Videos</a></li>
+                <li><a href="/history/"><i class="fas fa-history"></i> History</a></li>
+                <li><a href="/saved_videos/"><i class="fas fa-clock"></i> Watch Later</a></li>
+                <li><a href="/liked_videos/"><i class="fas fa-thumbs-up"></i> Liked Videos</a></li>
             </ul>
             {% if user.is_authenticated %}
-            <div class="logout"><a href="logout">Log Out</a></div>
+            <div class="logout"><a href="/logout/">Log Out</a></div>
             {% endif %}
         </nav>
 

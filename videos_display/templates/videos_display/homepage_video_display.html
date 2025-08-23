@@ -1,6 +1,57 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/homepage.css' %}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
- <div class="videos_container"style='width=100%; margin:5px;'> here videos wil be shown</div>
-{% endblock%}
+<main class="main-container">
+    <div class="container">
+        <h1 class="page-title">Recommended Videos</h1>
+        <div class="video-grid">
+            {% for video in videos %}
+            <div class="video-card">
+                <div class="thumbnail-container">
+                    <a href="{% url 'full_video' video.id %}">
+                        <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}">
+                        <div class="duration-badge">{{ video.duration }}</div>
+                        <div class="hover-overlay"></div>
+                    </a>
+                </div>
+
+                <div class="video-info">
+                    <div class="channel-avatar">
+                        <img src="{% static 'img/channel_avatar_placeholder.png' %}" alt="{{ video.username }}">
+                    </div>
+                    <div class="video-details">
+                        <h3 class="video-title">
+                            <a href="{% url 'full_video' video.id %}">{{ video.title }}</a>
+                        </h3>
+                        <div class="channel-info">
+                            <a href="" class="channel-name">{{ video.username }}</a>
+                            <!-- Example: Verified Badge -->
+                            <!-- <i class="fas fa-check-circle verified-icon"></i> -->
+                        </div>
+                        <div class="video-stats">
+                            <span>{{ video.views }} views</span>
+                            <span class="stat-separator">•</span>
+                            <span>{{ video.published_date }}</span>
+                            <!-- <span class="stat-separator">•</span> -->
+                             <br>
+                            <i class="fas fa-thumbs-up"></i> {{ video.likes }}
+                            <span class="stat-separator">•</span>
+                            <i class="fas fa-thumbs-down"></i> {{ video.dislikes }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>No videos available.</p>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+{% endblock %}
