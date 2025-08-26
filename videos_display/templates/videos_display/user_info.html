@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/user_info.css">
+{% endblock %}
+
+{% block content %}
+<div class="user-info-card">
+    <h2 class="user-info-title">User Profile</h2>
+    <div class="user-info-row"><span class="user-info-label">Username:</span> <span class="user-info-value">{{ user.username }}</span></div>
+    <div class="user-info-row"><span class="user-info-label">Email:</span> <span class="user-info-value">{{ user.email }}</span></div>
+    <div class="user-info-row"><span class="user-info-label">Subscribers:</span> <span class="user-info-value">{{ subscribers_count }}</span></div>
+    <div class="user-info-row"><span class="user-info-label">Account Created:</span> <span class="user-info-value">{{ user.date_joined|date:'M d, Y' }}</span></div>
+</div>
+{% endblock %}

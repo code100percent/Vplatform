@@ -42,8 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'User',
     'videos_display',
-    'livereload'
+
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -69,7 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.media',
+                # 'django.template.context_processors.media',
             ],
         },
     },
@@ -128,18 +130,24 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
+# ------------------------
+# STATIC FILES
+# ------------------------
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# ------------------------
+# CLOUDINARY SETTINGS
+# ------------------------
+INSTALLED_APPS += [
+    'cloudinary',
+    'cloudinary_storage',
 ]
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dxuogeifi',
+    'API_KEY': '267163434623534',
+    'API_SECRET': 'KxK2DFeZZsWbRx9gl5A_Gp6y5Hk'
+}
 
-# Media files
-MEDIA_ROOT = BASE_DIR / 'media'
-MEDIA_URL = '/media/'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'

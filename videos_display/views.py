@@ -1,20 +1,42 @@
 from django.shortcuts import render,redirect
-from .models import Disliked_video, Video ,Liked_video , Comment ,Saved_video, Subscriptions
+from .models import Disliked_video, Video ,Liked_video , Comment ,Saved_video, Subscriptions,WatchHistory
 from .form import VideoForm
 from django.contrib.auth.models import User
 #importing JsonResponse
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 import json
 
+def user_info(request):
+    if request.user.is_authenticated:
+        user = request.user
+        return render(request, 'videos_display/user_info.html', {'user': user})
+    else:
+        return redirect('sign_in')
 
 def homepage(request):
     videos = Video.objects.all()
     return render(request,'videos_display/homepage_video_display.html',{'videos': videos})
 
+def search_results(request):
+    query=str(request.GET.get('search_query')).strip().lower()
+    query_list = query.split()
+    search_results_videos = []
+    videos = list(Video.objects.all())
+    for video in videos:
+        title = video.title.split()
+        description = video.description.split()
+        username = video.username.split()
+        #first preccedence to title
+        for q in query_list or q in description or q in username:
+            if q in title:
+                search_results_videos.append(video)
+                break
+    return render(request,'videos_display/search_results.html',{'query_videos':search_results_videos})
 def your_videos(request):
     if request.user.is_authenticated:
         username = request.user.username
@@ -63,14 +85,23 @@ def full_video(request, id):
     video.views += 1
     video.save()
     user = request.user
+    channel = User.objects.get(username=video.username)
     like_status = False
     dislike_status = False
+    is_video_saved = False
+    is_video_user_subscribed = False
+
     if user.is_authenticated:
+        # Add to watch history
+        from .models import WatchHistory
+        WatchHistory.objects.update_or_create(user=user, video=video, defaults={})
         like_status = Liked_video.objects.filter(video=video, user=user).exists()
         dislike_status = Disliked_video.objects.filter(video=video, user=user).exists()
         is_video_saved = Saved_video.objects.filter(video=video, user=user).exists()
+        is_video_user_subscribed = Subscriptions.objects.filter(channel=channel, user=user).exists()
 
     comments = Comment.objects.filter(video=video).order_by('-created_at')
+    subscriptions_count = Subscriptions.objects.filter(channel=channel).count()
     context = {
         'video': video,
         'video_liked': like_status,
@@ -78,8 +109,9 @@ def full_video(request, id):
         'comments': comments,
         'comments_no' : comments.count(),
         'video_saved': is_video_saved,
-        'other_videos': Video.objects.exclude(id=video.id).filter(username=video.username)
-
+        'other_videos': Video.objects.exclude(id=video.id).filter(username=video.username),
+        'is_video_user_subscribed': is_video_user_subscribed,
+        'subscriptions_count': subscriptions_count
     }
     return render(request, 'videos_display/TheVideoPage.html', context)
 
@@ -93,16 +125,31 @@ def show_saved_videos(request):
 def trendings(request):
     return render(request, 'videos_display/trendings_page.html')
 def history(request):
-    return render(request, 'videos_display/history_page.html')
+    if request.user.is_authenticated:
+        from .models import WatchHistory, Video
+        history_entries = WatchHistory.objects.filter(user=request.user).order_by('-watched_at')
+        video_ids = [entry.video.id for entry in history_entries]
+        # Preserve order as in history_entries
+        videos = list(Video.objects.filter(id__in=video_ids))
+        videos_sorted = sorted(videos, key=lambda v: video_ids.index(v.id))
+        return render(request, 'videos_display/history_page.html', {'history_videos': videos_sorted})
+    else:
+        return render(request, 'User/sign_in_request_page.html')
 def subscriptions(request):
-    # if request.user.is_authenticated:
-    #     subscriptions = Subscriptions.objects.filter(user=request.user)
-    #     videos = Video.objects.filter(username=subscriptions.channel.username)
-    #     content = {'subscribed_channels': subscriptions}
+    if request.user.is_authenticated:
+        user = request.user
+        # Get all channels the user is subscribed to
+        subscriptions = user.subscriptions.select_related('channel').all()
+        subscribed_channels = [sub.channel for sub in subscriptions]
 
-    return render(request, 'videos_display/subscriptions_page.html' )
-    # else:
-        # return render(request, 'User/sign_in_request_page.html')
+        subscribed_videos = Video.objects.filter(username__in=[c.username for c in subscribed_channels]).order_by('-published_date')
+
+        return render(request, 'videos_display/subscriptions.html', {
+            'subscribed_channels': subscribed_channels,
+            'subscribed_videos': subscribed_videos,
+        })
+    else:
+        return render(request, 'User/sign_in_request_page.html')
 
 ##api views 
 
@@ -148,51 +195,43 @@ def remove_like(request, video_id):
         return JsonResponse({'error': 'not_logged_in'}, status=403)
     
 
-# def subscribe(request, username):
-#     #username implies channel name 
-#     user = request.user
-#     if user.is_authenticated:
-#         channel_user = User.objects.get(username=username)
-#         if Subscriptions.objects.filter(user=user, channel=channel_user).exists():
-#             Subscriptions.objects.filter(user=user, channel=channel_user).delete()
-#             return JsonResponse({'message': 'unSubscribed successfully'}, status=204)
-#         Subscriptions.objects.create(user=user, channel=channel_user)
-#         return JsonResponse({'message': 'Subscribed successfully'}, status=201)
-#     else:
-#         return JsonResponse({'error': 'not_logged_in'}, status=403)
+def remove_history(request, video_id):
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'error': 'not_logged_in'}, status=403)
+    try:
+        video = Video.objects.get(id=video_id)
+        history_entry = WatchHistory.objects.filter(user=user, video=video)
+        deleted_count, _ = history_entry.delete()
+        if deleted_count:
+            return JsonResponse({'message': 'History entry removed successfully'}, status=200)
+        else:
+            return JsonResponse({'error': 'History entry not found'}, status=404)
+    except Video.DoesNotExist:
+        return JsonResponse({'error': 'Video not found'}, status=404)
 
 
-@login_required
-def subscribe(request, video_id):
-    """Subscribe the logged-in user to a channel."""
-    video = Video.objects.get(id=video_id)
-    channel = User.objects.get(username=video.username)
 
+
+@require_POST
+def toggle_subscription(request, video_username):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "not_logged_in"}, status=403)
+    channel = User.objects.get(username=video_username)
     if request.user == channel:
         return JsonResponse({"error": "You cannot subscribe to yourself."}, status=400)
-
-    subscription, created = Subscriptions.objects.get_or_create(
-        user=request.user,
-        channel=channel
-    )
-
-    if created:
-        return JsonResponse({"message": "Subscribed successfully"}, status=201)
+    sub = Subscriptions.objects.filter(user=request.user, channel=channel)
+    if sub.exists():
+        sub.delete()
+        subscribed = False
+        message = "Unsubscribed successfully"
     else:
-        return JsonResponse({"message": "Already subscribed"}, status=200)
+        Subscriptions.objects.create(user=request.user, channel=channel)
+        subscribed = True
+        message = "Subscribed successfully"
+    count = Subscriptions.objects.filter(channel=channel).count()
+    return JsonResponse({"message": message, "subscriptions_count": count, "subscribed": subscribed})
 
-
-@login_required
-def unsubscribe(request, video_id):
-    """Unsubscribe the logged-in user from a channel."""
-    video = get_object_or_404(Video, id=video_id)
-    channel = User.objects.get(username=video.username)
-    try:
-        subscription = Subscriptions.objects.get(user=request.user, channel=channel)
-        subscription.delete()
-        return JsonResponse({"message": "Unsubscribed successfully"}, status=204)
-    except Subscriptions.DoesNotExist:
-        return JsonResponse({"error": "Not subscribed"}, status=404)
     
 
 def delete_video(request, video_id):

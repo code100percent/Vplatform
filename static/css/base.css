@@ -73,7 +73,7 @@ body {
 }
 
 .search-box {
-    width: 50%;
+    width: 50vw;
     max-width: 500px;
     display: flex;
     background: var(--text-color-light);
@@ -118,6 +118,45 @@ body {
 
 .sign-in:hover {
     background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* User profile avatar and link styling */
+.user-profile-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    margin-left: 18px;
+    transition: background 0.15s;
+    border-radius: 24px;
+    padding: 4px 12px 4px 4px;
+}
+.user-profile-link:hover, .user-profile-link:focus {
+    background: var(--secondary-color);
+    color: var(--text-color-light);
+}
+.user-avatar.user-avatar-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 60%, var(--secondary-color) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+.user-avatar-initial {
+    color: var(--text-color-light);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+.username-text {
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: var(--text-color);
+    letter-spacing: 0.5px;
 }
 
 /* Sidebar styles */

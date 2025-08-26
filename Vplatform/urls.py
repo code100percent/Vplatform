@@ -20,4 +20,6 @@ urlpatterns = [
     path('trendings/',vd_views.trendings,name='trendings'),
     path('subscription/',vd_views.subscriptions,name='subscriptions'),
     path('history/',vd_views.history,name='history'),
+    path('results/',vd_views.search_results,name='results'),
+    path('user_info/',vd_views.user_info,name='user_info')
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

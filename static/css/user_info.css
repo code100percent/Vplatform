@@ -1,0 +1,36 @@
+/* user_info.css - Simple user info card themed with base.css */
+
+.user-info-card {
+    background: var(--text-color-light);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    max-width: 420px;
+    margin: 48px auto 0 auto;
+    padding: 32px 28px 28px 28px;
+    border: 1.5px solid var(--border-color);
+}
+
+.user-info-title {
+    color: var(--primary-color);
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.user-info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    font-size: 1.08rem;
+}
+
+.user-info-label {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.user-info-value {
+    color: var(--secondary-color);
+    font-weight: 600;
+}

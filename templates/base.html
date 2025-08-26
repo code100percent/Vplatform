@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    {% block extra_css%}
+    {% block extra_css %}
     {% endblock %}    
     
 
@@ -28,20 +28,22 @@
 
             <!-- Search Bar -->
             <div class="search-container">
-                <div class="search-box">
-                    <input type="text" placeholder="Search..." />
-                    <button type="submit"><i class="fas fa-search"></i></button>
-                </div>
+                <div >
+                    <form method="get" action="/results/" class="search-box">
+                        <input type="text" placeholder="Search..." name="search_query" value="{{request.GET.search_query}}" />
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                    </div>
             </div>
 
 
                 {% if user.is_authenticated %}
-                <div class="user-profile-container">
-                    <div class="user-avatar">
-                        <i class="fas fa-user"></i>
+                <a href="/user_info/" class="user-profile-container user-profile-link">
+                    <div class="user-avatar user-avatar-circle">
+                        <span class="user-avatar-initial">{{ user.username|slice:":1"|upper }}</span>
                     </div>
                     <span class="username-text">{{ user.username }}</span>
-                </div>
+                </a>
                 {% else %}
                 <a href="/sign_in" class="sign-in">Sign In</a>
                 {% endif %}
@@ -53,7 +55,7 @@
         <nav id="sidebar">
             <ul class="list-unstyled components">
                 <li class="active"><a href="/"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="/trendings/"><i class="fas fa-fire"></i> Trending</a></li>
+                <!-- <li><a href="/trendings/"><i class="fas fa-fire"></i> Trending</a></li> -->
                 <li><a href="/subscription/"><i class="fas fa-subscript"></i> Subscriptions</a></li>
                 <li><a href="/your_videos/"><i class="fas fa-folder"></i> Your Videos</a></li>
                 <li><a href="/history/"><i class="fas fa-history"></i> History</a></li>

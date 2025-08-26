@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <link rel="stylesheet" href="/static/css/search_results.css">
+    <h1 style="margin-top:32px; color:var(--text-color); text-align:center; font-size:2rem;">Search Results for "{{ request.GET.search_query }}"</h1>
+    <div class="search-results">
+        {% for video in query_videos %}
+            <a href="/video/{{ video.id }}/" class="video-item-link">
+                <div class="video-item">
+                    <img class="video-thumb" src="{{ video.thumbnail.url|default:'/media/thumbnails/default.jpg' }}" alt="{{ video.title }} thumbnail">
+                    <div class="video-info">
+                        <div class="video-title">{{ video.title }}</div>
+                        <div class="video-description">{{ video.description|truncatechars:120 }}</div>
+                        <div class="video-meta">
+                            {{ video.username|default:'Unknown Channel' }} &bull;
+                            {{ video.views|default:'0' }} views &bull;
+                            {{ video.published_date|date:'M d, Y' }}
+                        </div>
+                    </div>
+                </div>
+            </a>
+        {% empty %}
+            <p style="color:var(--text-color); text-align:center;">No results found.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

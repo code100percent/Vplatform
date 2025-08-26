@@ -23,8 +23,8 @@
                 </div>
 
                 <div class="video-info">
-                    <div class="channel-avatar">
-                        <img src="{% static 'img/channel_avatar_placeholder.png' %}" alt="{{ video.username }}">
+                    <div class="channel-avatar user-avatar user-avatar-circle" title="{{ video.username }}">
+                        <span class="user-avatar-initial">{{ video.username|slice:':1'|upper }}</span>
                     </div>
                     <div class="video-details">
                         <h3 class="video-title">

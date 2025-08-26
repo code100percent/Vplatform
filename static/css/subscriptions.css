@@ -1,0 +1,205 @@
+/* Subscriptions page styling */
+.subscriptions-container {
+    max-width: 1100px;
+    margin: 40px auto 0 auto;
+    padding: 0 16px 40px 16px;
+}
+.subscriptions-title {
+    color: var(--primary-color);
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+}
+.subscriptions-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+.subscription-card {
+    display: flex;
+    align-items: center;
+    background: var(--text-color-light);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 16px 24px;
+    min-width: 260px;
+    border: 1.5px solid var(--border-color);
+    gap: 16px;
+}
+.channel-avatar.user-avatar.user-avatar-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 60%, var(--secondary-color) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+.channel-avatar .user-avatar-initial {
+    color: var(--text-color-light);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+.channel-details {
+    display: flex;
+    flex-direction: column;
+}
+.channel-username {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+.channel-email {
+    color: #888;
+    font-size: 0.98rem;
+}
+.subscribed-videos-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+@media (min-width: 640px) {
+  .subscribed-videos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .subscribed-videos-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 1280px) {
+  .subscribed-videos-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.video-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.thumbnail-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background-color: #e5e7eb;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.thumbnail-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.duration-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.hover-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(30, 58, 138, 0.1);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.video-card:hover .hover-overlay {
+  opacity: 1;
+}
+.video-info {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  align-items: flex-start;
+  flex: 1;
+}
+.channel-avatar.user-avatar.user-avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color) 60%, var(--secondary-color) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  border: 2px solid #a7d8ff;
+}
+.channel-avatar .user-avatar-initial {
+  color: var(--text-color-light);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.video-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.video-title {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.channel-info {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.channel-name {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 2px;
+}
+.video-stats {
+  color: #888;
+  font-size: 0.95rem;
+}
+.stat-separator {
+  margin: 0 6px;
+  color: #bbb;
+}
+.video-title a {
+  text-decoration: none !important;
+  color: #111;
+  transition: color 0.2s ease;
+}
+.video-title a:hover {
+  color: #a7d8ff;
+}
+@media (max-width: 900px) {
+  .subscribed-videos-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .video-card {
+    max-width: 100%;
+  }
+}

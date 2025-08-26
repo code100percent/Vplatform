@@ -1,0 +1,112 @@
+/* Make the whole card clickable and remove default link styles */
+.video-item-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 18px;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.video-item-link:focus .video-item,
+.video-item-link:hover .video-item {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+    transform: translateY(-2px) scale(1.01);
+}
+/* search_results.css - YouTube-like search results styling */
+
+
+.search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    margin-top: 40px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+.video-item {
+    display: flex;
+    flex-direction: row;
+    background: var(--text-color-light);
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+    border: 1.5px solid var(--border-color);
+    min-height: 220px;
+}
+
+
+.video-item:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+    transform: translateY(-2px) scale(1.01);
+}
+
+
+.video-thumb {
+    width: 380px;
+    height: 214px;
+    object-fit: cover;
+    background: var(--border-color);
+    flex-shrink: 0;
+    border-right: 1.5px solid var(--border-color);
+}
+
+
+.video-info {
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    background: var(--text-color-light);
+}
+
+
+.video-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 12px;
+    text-decoration: none;
+    transition: color 0.2s;
+    line-height: 1.2;
+}
+
+
+.video-title:hover {
+    color: var(--primary-color);
+}
+
+
+.video-description {
+    color: #444;
+    font-size: 1.08rem;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+
+.video-meta {
+    color: #666;
+    font-size: 1.02rem;
+}
+
+
+@media (max-width: 900px) {
+    .video-item {
+        flex-direction: column;
+        min-height: unset;
+    }
+    .video-thumb {
+        width: 100%;
+        height: 220px;
+        border-right: none;
+        border-bottom: 1.5px solid var(--border-color);
+    }
+    .video-info {
+        padding: 18px 14px;
+    }
+}

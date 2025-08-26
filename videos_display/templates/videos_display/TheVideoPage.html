@@ -51,10 +51,12 @@
 
                         <!-- Channel Info -->
                         <div class="channel-info">
-                            <div class="channel-avatar">{{ video.username|slice:":1" }}</div>
+                            <div class="channel-avatar user-avatar user-avatar-circle" title="{{ video.username }}">
+                                <span class="user-avatar-initial">{{ video.username|slice:":1"|upper }}</span>
+                            </div>
                             <div class="channel-details">
                                 <h3>{{ video.username }}</h3>
-                                <p>{{ video.subscriber_count }} subscribers</p>
+                                <p>{{ subscriptions_count }} subscribers</p>
                             </div>
                             <button class="subscribe-btn" id="subscribe-btn">Subscribe</button>
                         </div>
@@ -80,7 +82,9 @@
 
                             <!-- Add Comment -->
                             <div class="comment-input-section">
-                                <div class="comment-avatar">{{ user.username|slice:":1"}}</div>
+                                <div class="comment-avatar user-avatar user-avatar-circle" title="{{ user.username }}">
+                                    <span class="user-avatar-initial">{{ user.username|slice:":1"|upper }}</span>
+                                </div>
                                 <div class="comment-input">
                                     <input type="text" placeholder="Add a public comment..." id="comment-text">
                                     <div class="comment-actions" id="comment-actions" style="display: none;">
@@ -94,7 +98,9 @@
                             <div class="comments-list" id="comments-list">
                                 {% for comment in comments %}
                                 <div class="comment">
-                                    <div class="comment-avatar">{{ comment.user.username|slice:":2"}}</div>
+                                    <div class="comment-avatar user-avatar user-avatar-circle" title="{{ comment.user.username }}">
+                                        <span class="user-avatar-initial">{{ comment.user.username|slice:":1"|upper }}</span>
+                                    </div>
                                     <div class="comment-content">
                                         <div class="comment-author">
                                             {{ comment.user.username }}
@@ -247,7 +253,9 @@
                         const newComment = document.createElement('div');
                         newComment.classList.add('comment');
                         newComment.innerHTML = `
-                                    <div class="comment-avatar">{{ user.username|slice:":2" }}</div>
+                                    <div class="comment-avatar user-avatar user-avatar-circle" title="USERNAME">
+                                               <span class="user-avatar-initial">{{ user.username|slice:":1" }}</span>
+                                      </div>
                                     <div class="comment-content">
                                         <div class="comment-author">
                                             {{ user.username }}
@@ -333,53 +341,41 @@
         });
 
 
-        // subscribing logic 
+
+        // Subscribe/Unsubscribe toggle logic
         const subscribe_btn = document.getElementById('subscribe-btn');
-        const is_subscribed = "{{ is_subscribed }}" === 'True';
+    let is_subscribed = "{{ is_video_user_subscribed }}" === "True";
         if (is_subscribed) {
             subscribe_btn.classList.add('subscribed');
         }
         subscribe_btn.addEventListener('click', function() {
-            if (is_subscribed) {
-                unsubscribe("{{ video.id }}");
-                // subscribe_btn.classList.remove('subscribed');
-            } else {
-                subscribe("{{ video.id }}");
-                // subscribe_btn.classList.add('subscribed');
-            }
-        });
-        // Subscribe button
-        function subscribe(channelId) {
-            fetch(`/video_api/subscribe/${channelId}/`, { method: "POST" ,
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}"
-            }
-
+            fetch(`/video_api/toggle_subscription/{{ video.username }}/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/json"
+                }
             })
-                .then(res => res.json())
-                .then(data => alert(data.message))
-                .catch(err => console.error(err));
-            }
-
-        // Unsubscribe button
-        function unsubscribe(channelId) {
-        fetch(`/video_api/unsubscribe/${channelId}/`, { method: "DELETE",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}"
-            }
-         })
-            .then(res => {
-            if (res.status === 204) {
-                alert("Unsubscribed successfully");
-            } else {
-                return res.json();
-            }
-            })
+            .then(res => res.json())
             .then(data => {
-            if (data) alert(data.error || data.message);
+                if (data.subscribed) {
+                    subscribe_btn.classList.add('subscribed');
+                    is_subscribed = true;
+                } else {
+                    subscribe_btn.classList.remove('subscribed');
+                    is_subscribed = false;
+                }
+                // Update subscriber count in UI
+                const subCountElem = document.querySelector('.channel-details p');
+                if (subCountElem && data.subscriptions_count !== undefined) {
+                    subCountElem.textContent = `${data.subscriptions_count} subscribers`;
+                }
+                if (data.error === "not_logged_in") {
+                    alert("You need to be logged in.");
+                }
             })
             .catch(err => console.error(err));
-        }
+        });
 
    </script>
     {% endblock %}

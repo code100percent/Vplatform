@@ -1,7 +1,79 @@
+
+
 {% extends 'base.html' %}
+{% load static %}
 
-
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/liked_video_page.css' %}">
+{% endblock %}
 
 {% block content %}
-    <h1>comming soon !</h1>
+<div class="video-list" id="history-videos-list">
+    {% for video in history_videos %}
+    <div class="video-item" id="history-{{ video.id }}">
+        <a href="{% url 'full_video' video.id %}" class="video-item">
+            <div class="video-thumbnail">
+                <img src="{{ video.thumbnail.url }}" alt="{{ video.title }}">
+            </div>
+            <div class="video-details">
+                <div class="video-title">{{ video.title }}</div>
+                <div class="video-meta">
+                    <span>{{ video.views }} views</span> •
+                    <span>{{ video.likes }} likes</span> •
+                    <span>{{ video.dislikes }} dislikes</span> •
+                    <span>{{ video.published_date|date:"M d, Y" }}</span>
+                </div>
+            </div>
+        </a>
+        <div class="video-actions">
+            <button onclick="removeHistory('{{ video.id }}')" class="action-btn delete-btn">remove</button>
+        </div>
+    </div>
+    {% empty %}
+    <p>No history found.</p>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function removeHistory(videoId) {
+        fetch(`/video_api/remove_history/${videoId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                const historyItem = document.getElementById(`history-${videoId}`);
+                if (historyItem) {
+                    historyItem.remove();
+                }
+            } else {
+                alert(data.error || 'Failed to remove from history.');
+            }
+        })
+        .catch(() => alert('Failed to remove from history.'));
+    }
+
+    // Helper to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
 {% endblock %}
